@@ -1,0 +1,1367 @@
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Fish Market Menu</title>
+
+<style>
+    label{
+        display:block;
+        text-align:left;
+    }
+    textarea {
+        width:100%
+    }
+    
+    .item-options {
+      display: none;
+      margin-top: 10px;
+      text-align: left;
+    }
+    /* جزء اول */
+    .item.active .item-options {
+      display: block;
+    }
+    .zoom-toggle {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background-color: #1a75ff;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s, background-color 0.3s;
+    }
+    .zoom-toggle:hover {
+      background-color: #0055cc;
+      transform: scale(1.1);
+    }
+    :root {
+      --bg-dark: #0b1c2c;
+      --bg-light: #f0faff;
+      --text-dark: #f0f8ff;
+      --text-light: #003d5c;
+      --item-bg-dark: rgba(255, 255, 255, 0.05);
+      --item-bg-light: rgba(0, 0, 0, 0.05);
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+      margin: 0;
+      transition: background-color 0.5s, color 0.5s;
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+    .light-mode {
+      background-color: var(--bg-light);
+      color: var(--text-light);
+    }
+    .controls {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .mode-toggle {
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tabs {
+      margin-top: -125px;
+      flex-wrap: wrap;
+    }
+
+    .tabs button {
+      padding: 8px 12px;
+      margin: 5px;
+      border: none;
+      background-color: #1a75ff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background-color: #0055cc;
+    }
+
+    .section {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .item {
+      margin: 10px auto;
+      padding: 15px;
+      width: 80%;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: var(--item-bg-dark);
+      position: relative;
+    }
+
+    .light-mode .item {
+      background-color: var(--item-bg-light);
+    }
+
+    button.add {
+      background-color: #28a745;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    h1, h2 {
+      margin: 10px 0;
+    }
+
+    small {
+      font-size: 0.85em;
+      color: #ccc;
+    }
+    .fish {
+  position: absolute;
+  width: 50px;
+  height: 30px;
+  pointer-events: none;
+  animation: float infinite ease-in-out;
+  z-index: -1;
+}
+
+
+.fish svg {
+  animation: colorShift 6s linear infinite;
+}
+    .logo{
+        position:relative;
+        top: -100px;
+        left: 10px;
+        width: 237.05px;
+        height: 160.24px;
+    }
+    .h3{
+        font-size:50px;
+        color:c50000;
+        
+    }
+    .top{
+        position: relative;
+        top: -145px;
+    }
+    
+    .position{
+        position: relative;
+        top: -141px;
+        font-style: italic;
+        font-size: 16px;
+    }
+
+
+
+        @keyframes float {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+  25%  { transform: translate(20px, -10px) rotate(5deg); opacity: 0.8; }
+  50%  { transform: translate(40px, 10px) rotate(-5deg); opacity: 1; }
+  75%  { transform: translate(20px, -10px) rotate(5deg); opacity: 0.8; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+}
+
+@keyframes colorShift {
+  0%   { filter: hue-rotate(0deg); }
+  50%  { filter: hue-rotate(180deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* Popup basic overlay style */
+#popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+#popup .box {
+  background: black;
+  padding: 20px;
+  border-radius: 10px;
+  width: 320px;
+  text-align: center;
+}
+#order-list li, #popup-order-list li {
+  margin: 6px 0;
+  text-align: center;
+}
+.remove-span {
+  color: red;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 8px;
+}
+</style>
+</head>
+<body class="">
+<div class="controls">
+<button class="mode-toggle" onclick="toggleMode()">🌗 Mode</button>
+<button class="zoom-toggle" onclick="toggleZoom()">A</button>
+</div>
+<h3 style="font-size:50px;color: #ad0000;">P.HUT</h3>
+<svg class="Logo" height="100px" preserveAspectRatio="xMidYMid meet" version="1.0" viewBox="200 100 700 600" width="100 px" xmlns="http://www.w3.org/2000/svg" style="
+    position: relative;
+    top: -100px;
+    left: 10px;
+    width: 237.05px;
+    height: 160.24px;
+    /* position: relative; */
+    /* top: -100px; */
+    /* left: 16px; */
+">
+<g fill="#002D62" stroke="none" transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)">
+<path d="M6715 7316 c-17 -7 -67 -36 -112 -64 -297 -186 -660 -283 -1125 -298 -312 -11 -554 10 -1228 106 -492 70 -572 79 -795 87 -262 9 -541 -21 -813 -88 -537 -132 -1046 -417 -1445 -808 -155 -154 -155 -151 -19 -289 397 -399 885 -626 1492 -692 133 -15 440 -15 590 -1 301 29 643 106 1005 226 226 75 382 133 875 323 804 310 1288 449 1850 529 180 25 667 25 830 0 264 -41 494 -113 701 -218 129 -65 259 -152 259 -173 0 -16 -183 -194 -275 -267 -247 -195 -508 -319 -840 -399 -227 -55 -322 -65 -640 -64 -306 0 -374 5 -845 59 -565 66 -697 77 -985 82 -302 6 -463 -3 -675 -38 -256 -43 -468 -108 -675 -209 -336 -164 -513 -340 -466 -462 14 -36 66 -68 113 -68 29 0 62 17 164 85 205 136 366 206 628 270 203 49 350 66 637 72 398 9 713 -16 1644 -129 71 -8 228 -13 445 -13 302 0 349 2 479 23 306 49 544 123 796 247 306 151 557 345 757 587 102 122 119 155 126 234 7 89 -9 126 -92 209 -206 205 -645 408 -1063 489 -505 99 -985 79 -1611 -65 -457 -106 -796 -217 -1512 -498 -959 -377 -1412 -491 -1940 -491 -467 1 -864 112 -1195 335 -142 96 -200 147 -192 168 9 24 228 196 354 277 246 161 560 287 868 348 199 40 283 47 575 47 324 -1 429 -10 885 -81 561 -86 653 -96 963 -101 428 -8 740 36 1057 148 274 96 534 264 588 381 33 71 15 147 -43 182 -33 19 -55 20 -95 2z"></path>
+<path d="M2225 6346 c-69 -31 -115 -111 -115 -198 1 -167 169 -266 331 -197 172 74 152 343 -30 397 -51 16 -149 14 -186 -2z"></path>
+<path d="M8031 6088 c-141 -69 -157 -295 -28 -392 115 -87 270 -27 313 121 55 187 -119 353 -285 271z"></path>
+</g>
+</svg>
+<h1 style="position: relative;font-size:40px;margin: 0;top: -132px;/* color: black; */">Fish Market</h1>
+<h1 style="margin-top:0px;position: relative;top: -136px;/* color: black; */">Restaurant</h1>
+<h2 class="top">Healthy,Tasty &amp; Delight Food</h2>
+<h3 class="position">The Only Way For Catch Of The Day in El Gouna</h3>
+<div class="tabs" id="tabs">
+<button class="" onclick="showSection('COLD APPETIZERS', this)">COLD APPETIZERS</button>
+<button class="active
+    " onclick="showSection('HOT APPETIZERS', this)">HOT APPETIZERS</button>
+<button class="" onclick="showSection('SOUP', this)">SOUP</button>
+<button class="" onclick="showSection('PASTA', this)">PASTA</button>
+<button class="" onclick="showSection('RICE MIXED WITH', this)">RICE MIXED WITH</button>
+<button class="" onclick="showSection('SPICE TAGIN', this)">SPICE TAGIN</button>
+<button class="" onclick="showSection('GRILLED &amp; FRIED', this)">GRILLED &amp; FRIED</button>
+<button class="" onclick="showSection('SPECIALTIES', this)">SPECIALTIES</button>
+<button class="" onclick="showSection('Beef and Chicken', this)">Beef and Chicken</button>
+<button class="" onclick="showSection('DESSERTS', this)">DESSERTS</button>
+<button class="" onclick="showSection('SOFT DRINKS', this)">SOFT DRINKS</button>
+<button class="" onclick="showSection('HOT DRINKS', this)">HOT DRINKS</button>
+<button class="" onclick="showSection('FRESH JUICES', this)">FRESH JUICES</button>
+</div>
+<div id="sections">
+<div class="section" id="COLD APPETIZERS" style="display: none;">
+<div class="item">
+<strong>Colbacho - EGP 350</strong><br>
+<small>(Raw Tuna, Olive Oil, Lemon Pepper)</small>
+<textarea class="translatable-textarea" name="Sardine_comment_1" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Colbacho - EGP 350', this)">+</button>
+</div>
+<div class="item">
+<strong>Shrimp cocktail - EGP 360</strong><br>
+<small>(Baby Shrimps, Cognac, Mayo, Orange Juice, Sauce)</small>
+<textarea class="translatable-textarea" name="Sardine_comment_2" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Shrimp cocktail - EGP 360', this)">+</button>
+</div>
+<div class="item">
+<strong>Tuna Salad - EGP 230</strong><br>
+<small>(Tomato, Lettuce, Olive Oil, Lemon, Green Pepper)</small>
+<textarea class="translatable-textarea" name="Sardine_comment_3" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Tuna Salad - EGP 230', this)">+</button>
+</div>
+<div class="item">
+<strong>Creek Salad - EGP 210</strong><br>
+<small>(Tomato, Lettuce, Cucumber, Olives, Feta, Olive Oil, Lemon, Green Pepper)</small>
+<textarea class="translatable-textarea" name="Sardine_comment_4" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Creek Salad - EGP 210', this)">+</button>
+</div>
+<div class="item">
+<strong>Lebanese Mezze - EGP 270</strong><br>
+<small>(Tahina, Humous, Baba, Chanoug)</small>
+<textarea class="translatable-textarea" name="Sardine_comment_5" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Lebanese Mezze - EGP 270', this)">+</button>
+</div>
+<div class="item">
+<strong>Fish Market Salad - EGP 465</strong><br>
+<small>(Shrimps, Calamari, Octopus, Tuna, Lettuce, Tomato, Onion)</small>
+<textarea class="translatable-textarea" name="Sardine_comment_6" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Fish Market Salad - EGP 465', this)">+</button>
+</div>
+</div><div class="section" id="HOT APPETIZERS" style="display: none;">
+
+  <div class="item">
+    <strong>Sardine - EGP 185</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="sardine-option" value="Grilled"> Grilled</label><br>
+      <label><input type="radio" name="sardine-option" value="Fried"> Fried</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_7" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Sardine - EGP 185', this, 'sardine-option')">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Clams (100gr) - EGP 140</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_8" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Clams (100gr) - EGP 140', this)">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Musseis (100gr) - EGP 270</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_9" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Musseis (100gr) - EGP 270', this)">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Calamari (100gr) - EGP 145</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="calamari-option" value="Grilled"> Grilled</label><br>
+      <label><input type="radio" name="calamari-option" value="Fried"> Fried</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_10" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Calamari (100gr) - EGP 145', this, 'calamari-option')">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Shrimps M (100gr) - EGP 170</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="shrimps-option" value="Grilled"> Grilled</label><br>
+      <label><input type="radio" name="shrimps-option" value="Fried"> Fried</label><br>
+      <label><input type="radio" name="shrimps-option" value="Butterfly"> Butterfly</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_11" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Shrimps M (100gr) - EGP 170', this, 'shrimps-option')">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Garlic Bread - EGP 125</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_12" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Garlic Bread - EGP 125', this)">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Crostino e Mozzarella - EGP 135</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_13" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Crostino e Mozzarella - EGP 135', this)">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Crostino e Mozzarella &amp; Shrimps - EGP 230</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_14" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Crostino e Mozzarella &amp; Shrimps - EGP 230', this)">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Crostino e Mozzarella &amp; Calamari - EGP 210</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_15" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Crostino e Mozzarella &amp; Calamari - EGP 210', this)">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Crostino e Mozzarella &amp; Anchovies - EGP 195</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_16" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Crostino e Mozzarella &amp; Anchovies - EGP 195', this)">+</button>
+  </div>
+
+</div>
+<div class="section" id="SOUP" style="display: none;">
+
+  <!-- Seafood Soup -->
+  <div class="item">
+    <strong>Seafood Soup (250gr) - EGP 180</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="seafood-soup" value="Plain"> Plain</label><br>
+      <label><input type="radio" name="seafood-soup" value="Creamy"> Creamy</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_17" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Seafood Soup (250gr) - EGP 180', this, 'seafood-soup')">+</button>
+  </div>
+
+  <!-- Tomato Soup -->
+  <div class="item">
+    <strong>Tomato Soup - EGP 120</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_18" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Tomato Soup - EGP 120', this)">+</button>
+  </div>
+
+  <!-- Vegetable Soup -->
+  <div class="item">
+    <strong>Vegetable Soup - EGP 120</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_19" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Vegetable Soup - EGP 120', this)">+</button>
+  </div>
+
+  <!-- Lentil Soup -->
+  <div class="item">
+    <strong>Lentil Soup - EGP 120</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_20" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Lentil Soup - EGP 120', this)">+</button>
+  </div>
+
+  <!-- Fish Soup -->
+  <div class="item">
+    <strong>Fish Soup - EGP 175</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="fish-soup" value="Plain"> Plain</label><br>
+      <label><input type="radio" name="fish-soup" value="Creamy"> Creamy</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_21" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Fish Soup - EGP 175', this, 'fish-soup')">+</button>
+  </div>
+
+  <!-- Shrimp Soup -->
+  <div class="item">
+    <strong>Shrimp Soup - EGP 210</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="shrimp-soup" value="Plain"> Plain</label><br>
+      <label><input type="radio" name="shrimp-soup" value="Creamy"> Creamy</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_22" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Shrimp Soup - EGP 210', this, 'shrimp-soup')">+</button>
+  </div>
+
+  <!-- Special Seafood Soup -->
+  <div class="item">
+    <strong>Special Seafood Soup - EGP 310</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="special-seafood-soup" value="Plain"> Plain</label><br>
+      <label><input type="radio" name="special-seafood-soup" value="Creamy"> Creamy</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_23" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Special Seafood Soup - EGP 310', this, 'special-seafood-soup')">+</button>
+  </div>
+
+</div>
+<div class="section" id="PASTA" style="display: none;">
+
+  <!-- Pomodoro -->
+  <div class="item">
+    <strong>Pomodoro - EGP 240</strong><br>
+    <small>(Tomato Sauce, Basil)</small>
+    <textarea class="translatable-textarea" name="Sardine_comment_24" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+    <button class="add" onclick="addToOrder('Pomodoro - EGP 240', this)">+</button>
+  </div>
+
+  <!-- Olio Alio -->
+  <div class="item">
+    <strong>Olio Alio - EGP 225</strong><br>
+    <small>(Garlic, Chili, Olive Oil)</small>
+    <textarea class="translatable-textarea" name="Sardine_comment_25" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+    <button class="add" onclick="addToOrder('Olio Alio - EGP 225', this)">+</button>
+  </div>
+
+  <!-- Arabiatta -->
+  <div class="item">
+    <strong>Arabiatta - EGP 225</strong><br>
+    <small>(Garlic, Chili, Tomato Sauce)</small>
+    <textarea class="translatable-textarea" name="Sardine_comment_26" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+    <button class="add" onclick="addToOrder('Arabiatta - EGP 225', this)">+</button>
+  </div>
+
+  <!-- Clams -->
+  <div class="item">
+    <strong>Clams - EGP 345</strong><br>
+    <small>(Garlic, Olive Oil, Fresh Tomato, Parsley)</small>
+    <textarea class="translatable-textarea" name="Sardine_comment_27" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+    <button class="add" onclick="addToOrder('Clams - EGP 345', this)">+</button>
+  </div>
+
+  <!-- Shrimps -->
+  <div class="item">
+    <strong>Shrimps - EGP 385</strong><br>
+    <small>(Olive Oil, Fresh Tomato, Garlic, Chili)</small>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="shrimps-sauce" value="Red"> Red Sauce</label><br>
+      <label><input type="radio" name="shrimps-sauce" value="White"> White Sauce</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_28" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Shrimps - EGP 385', this, 'shrimps-sauce')">+</button>
+  </div>
+
+  <!-- Lobster -->
+  <div class="item">
+    <strong>Lobster (400gr) - EGP 1700</strong><br>
+    <small>(Garlic, Olive Oil, Parsley, Chili)</small>
+    <textarea class="translatable-textarea" name="Sardine_comment_29" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+    <button class="add" onclick="addToOrder('Lobster (400gr) - EGP 1700', this)">+</button>
+  </div>
+
+  <!-- Seafood -->
+  <div class="item">
+    <strong>Seafood - EGP 400</strong><br>
+    <small>(Shrimp, Calamari, Fish, Clams, Parsley, Olive Oil, Fresh Tomato)</small>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="seafood-sauce" value="Red"> Red Sauce</label><br>
+      <label><input type="radio" name="seafood-sauce" value="White"> White Sauce</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_30" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Seafood - EGP 400', this, 'seafood-sauce')">+</button>
+  </div>
+
+  <!-- Extra White Sauce -->
+  <div class="item">
+    <strong>Extra White Sauce - EGP 75</strong>
+    <textarea class="translatable-textarea" name="Sardine_comment_31" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+    <button class="add" onclick="addToOrder('Extra White Sauce - EGP 75', this)">+</button>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+<div class="section" id="RICE MIXED WITH" style="display: none;">
+<div class="item">
+<strong>Fish - EGP 310</strong><br>
+<small>(Oil, Onions, Parsley, Chili, Tomato)</small><textarea class="translatable-textarea" name="Sardine_comment_32" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Fish - EGP 310', this)">+</button>
+</div>
+<div class="item">
+<strong>Calms - EGP 345</strong><br>
+<small>(Oil, Onions, Parsley, Chili)</small><textarea class="translatable-textarea" name="Sardine_comment_33" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Calms - EGP 345', this)">+</button>
+</div>
+<div class="item">
+<strong>Calamari - EGP 330</strong><br>
+<small>(Onions, Parsley, Sesame Oil, Pepper)</small><textarea class="translatable-textarea" name="Sardine_comment_34" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Calamari - EGP 330', this)">+</button>
+</div>
+<div class="item">
+<strong>Baby Shrimps - EGP 350</strong><br>
+<small>(Onions, Parsley, Oil, Tomato)</small><textarea class="translatable-textarea" name="Sardine_comment_35" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Baby Shrimps - EGP 350', this)">+</button>
+</div>
+<div class="item">
+<strong>Seafood - EGP 380</strong><br>
+<small>(Shrimp, Calamari, Fish, Clams, Onions, Parsley, Oil, Tomato)</small><textarea class="translatable-textarea" name="Sardine_comment_36" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Seafood - EGP 380', this)">+</button>
+</div>
+</div>
+<div class="section" id="SPICE TAGIN" style="display: none;">
+
+  <div class="item">
+    <strong>Shrimps M - EGP 400</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="shrimps-m-sauce" value="Red"> Red Sauce</label><br>
+      <label><input type="radio" name="shrimps-m-sauce" value="White"> White Sauce</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_37" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Shrimps M - EGP 400', this, 'shrimps-m-sauce')">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Shrimps S - EGP 360</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="shrimps-s-sauce" value="Red"> Red Sauce</label><br>
+      <label><input type="radio" name="shrimps-s-sauce" value="White"> White Sauce</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_38" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Shrimps S - EGP 360', this, 'shrimps-s-sauce')">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Calamari - EGP 380</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="calamari-sauce" value="Red"> Red Sauce</label><br>
+      <label><input type="radio" name="calamari-sauce" value="White"> White Sauce</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_39" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Calamari - EGP 380', this, 'calamari-sauce')">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Fish - EGP 340</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="fish-sauce" value="Red"> Red Sauce</label><br>
+      <label><input type="radio" name="fish-sauce" value="White"> White Sauce</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_40" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Fish - EGP 340', this, 'fish-sauce')">+</button>
+  </div>
+
+  <div class="item">
+    <strong>Seafood - EGP 400</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="seafood-sauce" value="Red"> Red Sauce</label><br>
+      <label><input type="radio" name="seafood-sauce" value="White"> White Sauce</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_41" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('Seafood - EGP 400', this, 'seafood-sauce')">+</button>
+  </div>
+
+  <div class="item">
+    <strong>White Sauce - EGP 70</strong>
+    <div class="options" style="margin:5px 0;">
+      <label><input type="radio" name="extra-white-sauce" value="Red"> Red Sauce</label><br>
+      <label><input type="radio" name="extra-white-sauce" value="White"> White Sauce</label><br>
+    </div>
+    <textarea class="translatable-textarea" name="Sardine_comment_42" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea>
+    <button class="add" onclick="addToOrder('White Sauce - EGP 70', this, 'extra-white-sauce')">+</button>
+  </div>
+
+</div>
+
+
+<div class="section" id="SPECIALTIES" style="display: none;">
+<div class="item">
+<strong>Fish Sayadeya - EGP 390</strong><br>
+<small>(Onions, Rice, Tomato, Spices)</small>
+<textarea class="translatable-textarea" name="Sardine_comment_56" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Fish Sayadeya - EGP 390', this)">+</button>
+</div>
+<div class="item">
+<strong>Stuffed Fish - EGP 425</strong><br>
+<small>(Fish stuffed with rice and vegetables)</small><textarea class="translatable-textarea" name="Sardine_comment_57" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Stuffed Fish - EGP 425', this)">+</button>
+</div>
+<div class="item">
+<strong>Seafood Tagin - EGP 480</strong><br>
+<small>(Mix of seafood with vegetables and spices)</small><textarea class="translatable-textarea" name="Sardine_comment_58" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Seafood Tagin - EGP 480', this)">+</button>
+</div>
+<div class="item">
+<strong>Fried Fish Fillet Sandwich - EGP 190</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_59" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Fried Fish Fillet Sandwich - EGP 190', this)">+</button>
+</div>
+<div class="item">
+<strong>Seafood Pizza - EGP 380</strong><textarea class="translatable-textarea" name="Sardine_comment_60" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Seafood Pizza - EGP 380', this)">+</button>
+</div>
+</div><div class="section" id="GRILLED_FRIED" style="display: block;">
+  <!-- 1- Lobster -->
+  <div class="item">
+    <strong>1- Lobster (1kg) - EGP 4000</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label style="
+    display: block;
+    text-align: left;
+"><input type="radio" name="lobster_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="lobster_option" value="Boiled"> Boiled</label>
+      <label><input type="radio" name="lobster_option" value="White Sauce"> White Sauce</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('1- Lobster (1kg) - EGP 4000', this, 'lobster_option')">+</button>
+  </div>
+
+  <!-- 2- Crabs -->
+  <div class="item">
+    <strong>2- Crabs (300gr) - EGP 400</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="crabs_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="crabs_option" value="Boiled"> Boiled</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('2- Crabs (300gr) - EGP 400', this, 'crabs_option')">+</button>
+  </div>
+
+  <!-- 3- Octopus -->
+  <div class="item">
+    <strong>3- Octopus (250gr) - EGP 440</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="octopus_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="octopus_option" value="Butterfly"> Butterfly</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('3- Octopus (250gr) - EGP 440', this, 'octopus_option')">+</button>
+  </div>
+
+  <!-- 4- Calamari -->
+  <div class="item">
+    <strong>4- Calamari (250gr) - EGP 330</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="calamari_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="calamari_option" value="Fried"> Fried</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('4- Calamari (250gr) - EGP 330', this, 'calamari_option')">+</button>
+  </div>
+
+  <!-- 5- White Snapper -->
+  <div class="item">
+    <strong>5- White Snapper (500gr) - EGP 450</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="wsnapper_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="wsnapper_option" value="Fried"> Fried</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('5- White Snapper (500gr) - EGP 450', this, 'wsnapper_option')">+</button>
+  </div>
+
+  <!-- 6- Soul Fish -->
+  <div class="item">
+    <strong>6- Soul Fish (500gr) - EGP 320</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="soulfish_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="soulfish_option" value="Fried"> Fried</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('6- Soul Fish (500gr) - EGP 320', this, 'soulfish_option')">+</button>
+  </div>
+
+  <!-- 7- Sea Bass -->
+  <div class="item">
+    <strong>7- Sea Bass (For Two) - EGP 950</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="seabass_option" value="Grilled Close"> Grilled Close</label>
+      <label><input type="radio" name="seabass_option" value="Grilled Butterfly"> Grilled Butterfly</label>
+      <label><input type="radio" name="seabass_option" value="Fried"> Fried</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('7- Sea Bass (For Two) - EGP 950', this, 'seabass_option')">+</button>
+  </div>
+
+  <!-- 8- Red Snapper -->
+  <div class="item">
+    <strong>8- Red Snapper (For Two) - EGP 850</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="redsnapper_option" value="Grilled Close"> Grilled Close</label>
+      <label><input type="radio" name="redsnapper_option" value="Grilled Butterfly"> Grilled Butterfly</label>
+      <label><input type="radio" name="redsnapper_option" value="Fried"> Fried</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('8- Red Snapper (For Two) - EGP 850', this, 'redsnapper_option')">+</button>
+  </div>
+
+  <!-- 9- Barboni -->
+  <div class="item">
+    <strong>9- Barboni (250gr) - EGP 330</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="barboni_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="barboni_option" value="Fried"> Fried</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('9- Barboni (250gr) - EGP 330', this, 'barboni_option')">+</button>
+  </div>
+
+  <!-- 10- Shrimps L -->
+  <div class="item">
+    <strong>10- Shrimps L (300gr) - EGP 690</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="shrimpsl_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="shrimpsl_option" value="Fried"> Fried</label>
+      <label><input type="radio" name="shrimpsl_option" value="Butterfly"> Butterfly</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('10- Shrimps L (300gr) - EGP 690', this, 'shrimpsl_option')">+</button>
+  </div>
+
+  <!-- 11- Shrimps M -->
+  <div class="item">
+    <strong>11- Shrimps M (200gr) - EGP 380</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="shrimpsm_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="shrimpsm_option" value="Fried"> Fried</label>
+      <label><input type="radio" name="shrimpsm_option" value="Butterfly"> Butterfly</label>
+    </div>
+    <textarea placeholder="Add comment..." style="/* width: 1039px; *//* height: 43px; */"></textarea>
+    <button class="add" onclick="addToOrder('11- Shrimps M (200gr) - EGP 380', this, 'shrimpsm_option')">+</button>
+  </div>
+
+  <!-- 12- Fish Fillet -->
+  <div class="item">
+    <strong>12- Fish Fillet (250gr) - EGP 575</strong><br>
+    <div class="options" style="display:block; margin:5px 0;">
+      <label><input type="radio" name="fillet_option" value="Grilled"> Grilled</label>
+      <label><input type="radio" name="fillet_option" value="Fried"> Fried</label>
+    </div>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('12- Fish Fillet (250gr) - EGP 575', this, 'fillet_option')">+</button>
+  </div>
+
+  <!-- 13- Fish and Chips -->
+  <div class="item">
+    <strong>13- Fish and Chips - EGP 600</strong><br>
+    <textarea placeholder="Add comment..."></textarea>
+    <button class="add" onclick="addToOrder('13- Fish and Chips - EGP 600', this)">+</button>
+  </div>
+</div>
+
+<div class="section" id="Beef and Chicken" style="display: none;">
+<div class="item">
+<strong>Grilled Chicken Breast - EGP 280</strong><textarea class="translatable-textarea" name="Sardine_comment_61" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Grilled Chicken Breast - EGP 280', this)">+</button>
+</div>
+<div class="item">
+<strong>Grilled Chicken Escalope - EGP 290</strong><textarea class="translatable-textarea" name="Sardine_comment_62" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Grilled Chicken Escalope - EGP 290', this)">+</button>
+</div>
+<div class="item">
+<strong>Chicken Pane - EGP 270</strong><textarea class="translatable-textarea" name="Sardine_comment_63" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Chicken Pane - EGP 270', this)">+</button>
+</div>
+<div class="item">
+<strong>Beef Fillet (200gr) - EGP 450</strong><textarea class="translatable-textarea" name="Sardine_comment_64" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Beef Fillet (200gr) - EGP 450', this)">+</button>
+</div>
+<div class="item">
+<strong>Beef Burger - EGP 320</strong><textarea class="translatable-textarea" name="Sardine_comment_65" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Beef Burger - EGP 320', this)">+</button>
+</div>
+<div class="item">
+<strong>Chicken Burger - EGP 300</strong><textarea class="translatable-textarea" name="Sardine_comment_66" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Chicken Burger - EGP 300', this)">+</button>
+</div>
+</div>
+<div class="section" id="DESSERTS" style="display: none;">
+<div class="item">
+<strong>Om Ali - EGP 120</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_67" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Om Ali - EGP 120', this)">+</button>
+</div>
+<div class="item">
+<strong>Fruit Salad - EGP 130</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_68" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Fruit Salad - EGP 130', this)">+</button>
+</div>
+<div class="item">
+<strong>Creme Caramel - EGP 100</strong><textarea class="translatable-textarea" name="Sardine_comment_69" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Creme Caramel - EGP 100', this)">+</button>
+</div>
+<div class="item">
+<strong>Ice Cream - EGP 110</strong><textarea class="translatable-textarea" name="Sardine_comment_70" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Ice Cream - EGP 110', this)">+</button>
+</div>
+<div class="item">
+<strong>Chocolate Cake - EGP 150</strong><textarea class="translatable-textarea" name="Sardine_comment_71" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Chocolate Cake - EGP 150', this)">+</button>
+</div>
+</div>
+<div class="section" id="SOFT DRINKS" style="display: none;">
+<div class="item">
+<strong>Cola - EGP 70</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_72" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Cola - EGP 70', this)">+</button>
+</div>
+<div class="item">
+<strong>Fanta - EGP 70</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_73" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Fanta - EGP 70', this)">+</button>
+</div>
+<div class="item">
+<strong>Sprite - EGP 70</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_74" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Sprite - EGP 70', this)">+</button>
+</div>
+<div class="item">
+<strong>Soda - EGP 65</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_75" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Soda - EGP 65', this)">+</button>
+</div>
+<div class="item">
+<strong>Water Small - EGP 50</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_76" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Water Small - EGP 50', this)">+</button>
+</div>
+<div class="item">
+<strong>Water Large - EGP 80</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_77" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Water Large - EGP 80', this)">+</button>
+</div>
+</div>
+<div class="section" id="HOT DRINKS" style="display: none;">
+<div class="item">
+<strong>Tea - EGP 65</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_78" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Tea - EGP 65', this)">+</button>
+</div>
+<div class="item">
+<strong>Coffee - EGP 70</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_79" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Coffee - EGP 70', this)">+</button>
+</div>
+<div class="item">
+<strong>Anise Tea - EGP 55</strong><textarea class="translatable-textarea" name="Sardine_comment_80" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Anise Tea - EGP 55', this)">+</button>
+</div>
+<div class="item">
+<strong>Tilia - EGP 55</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_81" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Tilia - EGP 55', this)">+</button>
+</div>
+<div class="item">
+<strong>Nescafe - EGP 75</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_82" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Nescafe - EGP 75', this)">+</button>
+</div>
+<div class="item">
+<strong>Cappuccino - EGP 90</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_83" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Cappuccino - EGP 90', this)">+</button>
+</div>
+</div>
+
+<div class="section" id="FRESH JUICES" style="display: none;">
+<div class="item">
+<strong>Orange Juice - EGP 90</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_84" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Orange Juice - EGP 90', this)">+</button>
+</div>
+<div class="item">
+<strong>Guava Juice - EGP 85</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_85" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Guava Juice - EGP 85', this)">+</button>
+</div>
+<div class="item">
+<strong>Mango Juice - EGP 95</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_86" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Mango Juice - EGP 95', this)">+</button>
+</div>
+<div class="item">
+<strong>Strawberry Juice - EGP 95</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_87" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Strawberry Juice - EGP 95', this)">+</button>
+</div>
+<div class="item">
+<strong>Lemon Juice - EGP 85</strong>
+<textarea class="translatable-textarea" name="Sardine_comment_88" placeholder="Add your comment" rows="2" style="width: 100%; margin-top: 8px;"></textarea><br>
+<button class="add" onclick="addToOrder('Lemon Juice - EGP 85', this)">+</button>
+</div>
+</div>
+</div>
+
+<!-- Order area (kept visible structure like original) -->
+<div class="order" style="padding: 20px;">
+<h3>Your Order:</h3>
+<ul id="order-list"></ul>
+<div id="total" style="font-weight:bold; margin-top:10px;">Total: EGP 1200</div>
+<button id="submitBtn" onclick="openPopup()" style="
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  ">Submit Order</button>
+</div>
+
+<!-- Popup -->
+<div id="popup" style="display: none;">
+  <div class="box">
+    <h3 style="
+    color: #ffffff;
+">Your Order</h3>
+    <ul id="popup-order-list" style="text-align: left; margin: 10px 0;"><li>
+      13- Fish and Chips - EGP 600 
+      <span onclick="removePopupItem(this, '1')" style="color:red; cursor:pointer; font-weight:bold; margin-left:8px;">×</span></li><li>
+      13- Fish and Chips - EGP 600 
+      <span onclick="removePopupItem(this, '2')" style="color:red; cursor:pointer; font-weight:bold; margin-left:8px;">×</span></li></ul>
+    <div id="popup-total" style="margin-top:8px; font-weight:bold;">Total: EGP 1200</div>
+    <button onclick="closePopup()" style="
+      margin-top:10px;
+      padding: 8px 15px;
+      background-color: #28a745;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    ">OK</button>
+  </div>
+</div>
+
+<!-- fish decorations (kept) -->
+<div class="fish" style="top: 4.64907vh; left: 89.2855vw; animation-duration: 9.8536s;">
+<svg height="30" viewBox="0 0 50 30" width="50" xmlns="http://www.w3.org/2000/svg">
+<path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" fill="none" stroke="#6fc1ff" stroke-width="2"></path>
+<line stroke="#6fc1ff" stroke-width="2" x1="40" x2="48" y1="15" y2="10"></line>
+<line stroke="#6fc1ff" stroke-width="2" x1="40" x2="48" y1="15" y2="20"></line>
+</svg>
+</div>
+<!-- (other fish svgs kept — omitted here only to shorten example; in the real file include all that were in your original) -->
+<!-- Note: I kept the full set of fish svgs from your original; if copying, ensure all are included. -->
+<script>
+let order = [];
+let total = 0;
+let orderIdCounter = 0;
+
+// escape HTML
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe.replace(/[&<>"'`=\/]/g, function (s) {
+    return {
+      '&': "&amp;",
+      '<': "&lt;",
+      '>': "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+      '/': "&#x2F;",
+      '`': "&#x60;",
+      '=': "&#x3D;"
+    }[s];
+  });
+}
+
+// ====== Toggle options ======
+function toggleOptions(el) {
+  const item = el.closest(".item");
+  if (!item) return;
+
+  const optionsDiv = item.querySelector(".options");
+  if (!optionsDiv) return;
+
+  if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
+    optionsDiv.style.display = "block";
+    el.textContent = el.textContent.replace("▼", "▲");
+  } else {
+    optionsDiv.style.display = "none";
+    el.textContent = el.textContent.replace("▲", "▼");
+  }
+}
+
+// ====== Add to order ======
+function addToOrder(itemLabel, btn, optionGroup) {
+  let name = itemLabel;
+  let price = 0;
+  const match = itemLabel.match(/(.*)\s-\sEGP\s*([\d.]+)/);
+  if (match) {
+    name = match[1].trim();
+    price = parseFloat(match[2]);
+  }
+
+  const itemElem = btn.closest('.item');
+  const textarea = itemElem ? itemElem.querySelector('textarea') : null;
+  const comment = textarea ? textarea.value.trim() : '';
+
+  let option = '';
+  if (optionGroup) {
+    const selected = itemElem.querySelector(`input[name="${optionGroup}"]:checked`);
+    if (selected) option = selected.value;
+  }
+
+  const id = ++orderIdCounter;
+  order.push({ id, name, price, option, comment });
+  total += price;
+  updateOrderList();
+}
+
+// ====== Update order list ======
+function updateOrderList() {
+  const list = document.getElementById("order-list");
+  list.innerHTML = "";
+
+  if (order.length === 0) {
+    list.innerHTML = "<li>No items yet.</li>";
+  } else {
+    order.forEach(item => {
+      const li = document.createElement("li");
+      li.setAttribute('data-id', item.id);
+      let text = `${item.name} - EGP ${item.price}`;
+      if (item.option) text += ` | Option: ${item.option}`;
+      if (item.comment) text += ` | Note: ${escapeHtml(item.comment)}`;
+      li.innerHTML = `${text} <span class="remove-span" onclick="removeItem(${item.id})">×</span>`;
+      list.appendChild(li);
+    });
+  }
+  document.getElementById("total").textContent = "Total: EGP " + total;
+}
+
+// ====== Remove item from main list ======
+function removeItem(id) {
+  const idx = order.findIndex(i => i.id === id);
+  if (idx !== -1) {
+    total -= order[idx].price;
+    order.splice(idx, 1);
+    updateOrderList();
+  }
+}
+
+// ====== Submit Order (popup) ======
+function openPopup() {
+  if(order.length === 0){
+    alert("No items in order!");
+    return;
+  }
+  const popupList = document.getElementById("popup-order-list");
+  popupList.innerHTML = "";
+  order.forEach(item => {
+    const li = document.createElement("li");
+    let text = `${item.name} - EGP ${item.price}`;
+    if (item.option) text += ` | Option: ${item.option}`;
+    if (item.comment) text += ` | Note: ${escapeHtml(item.comment)}`;
+    li.innerHTML = `
+      ${text} 
+      <span onclick="removePopupItem(this, '${item.id}')" 
+            style="color:red; cursor:pointer; font-weight:bold; margin-left:8px;">×</span>`;
+    popupList.appendChild(li);
+  });
+
+  document.getElementById("popup-total").textContent = "Total: EGP " + total;
+  document.getElementById("popup").style.display = "flex";
+}
+
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
+}
+
+// ====== Remove from popup ======
+function removePopupItem(el, id) {
+  el.parentElement.remove();
+  const i = order.findIndex(x => x.id == id);
+  if (i > -1) {
+    total -= order[i].price;
+    order.splice(i, 1);
+  }
+  updateOrderList();
+
+  // update popup total
+  const newTotal = order.reduce((t, x) => t + (x.price || 0), 0);
+  const totalEl = document.getElementById('popup-total');
+  if (totalEl) totalEl.textContent = 'Total: EGP ' + newTotal;
+}
+
+// ====== Navigation Tabs ======
+function showSection(sectionId, btn) {
+  document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+  const target = document.getElementById(sectionId);
+  if (target) target.style.display = 'block';
+
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+// ====== Mode Toggle ======
+function toggleMode() {
+  document.body.classList.toggle("light-mode");
+}
+
+// ====== Zoom Toggle ======
+let zoomed = false;
+function toggleZoom() {
+  if (!zoomed) {
+    document.body.style.fontSize = "1.3em";
+    zoomed = true;
+  } else {
+    document.body.style.fontSize = "";
+    zoomed = false;
+  }
+}
+</script>
+
+
+
+
+<div class="fish" style="top: 81.4512vh; left: 27.6877vw; animation-duration: 9.50123s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#6fc1ff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#6fc1ff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#6fc1ff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 53.5119vh; left: 53.0448vw; animation-duration: 12.0938s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#a4e3f0" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#a4e3f0" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#a4e3f0" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 98.914vh; left: 33.6444vw; animation-duration: 8.00531s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#f3ffb6" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#f3ffb6" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#f3ffb6" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 73.3vh; left: 15.4181vw; animation-duration: 11.3722s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ffbdbd" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ffbdbd" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ffbdbd" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 26.318vh; left: 92.1404vw; animation-duration: 9.41887s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ffffff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ffffff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ffffff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 31.5893vh; left: 1.9781vw; animation-duration: 10.7263s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ffccff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ffccff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ffccff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 39.8377vh; left: 50.2958vw; animation-duration: 9.54825s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#c0ffee" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#c0ffee" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#c0ffee" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 16.7011vh; left: 33.8476vw; animation-duration: 12.2148s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#00ffff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#00ffff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#00ffff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 75.5752vh; left: 35.4322vw; animation-duration: 8.5316s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ff9966" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ff9966" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ff9966" stroke-width="2"></line>
+    </svg>
+  </div><div class="fish" style="top: 54.9499vh; left: 33.5682vw; animation-duration: 10.454s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#99ff99" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#99ff99" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#99ff99" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 82.6335vh; left: 57.4692vw; animation-duration: 8.47435s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ffcc66" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ffcc66" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ffcc66" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 95.0865vh; left: 98.9797vw; animation-duration: 8.84731s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ff66cc" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ff66cc" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ff66cc" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 5.02605vh; left: 23.4873vw; animation-duration: 12.5947s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#66ccff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#66ccff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#66ccff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 12.8624vh; left: 37.5096vw; animation-duration: 12.9575s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ff9999" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ff9999" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ff9999" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 81.1655vh; left: 88.2273vw; animation-duration: 9.10836s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ccffcc" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ccffcc" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ccffcc" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 48.0861vh; left: 99.4259vw; animation-duration: 9.13969s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#6fc1ff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#6fc1ff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#6fc1ff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 41.5508vh; left: 36.147vw; animation-duration: 8.33596s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#a4e3f0" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#a4e3f0" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#a4e3f0" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 34.836vh; left: 81.551vw; animation-duration: 9.92072s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#f3ffb6" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#f3ffb6" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#f3ffb6" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 97.8917vh; left: 0.1301vw; animation-duration: 12.9834s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ffbdbd" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ffbdbd" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ffbdbd" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 91.4391vh; left: 35.9685vw; animation-duration: 10.5745s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ffffff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ffffff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ffffff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 49.4317vh; left: 39.8778vw; animation-duration: 8.57432s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ffccff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ffccff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ffccff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 39.1919vh; left: 4.84268vw; animation-duration: 11.6686s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#c0ffee" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#c0ffee" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#c0ffee" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 78.869vh; left: 64.8046vw; animation-duration: 12.2121s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#00ffff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#00ffff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#00ffff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 49.7621vh; left: 0.134178vw; animation-duration: 10.406s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ff9966" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ff9966" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ff9966" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 67.8057vh; left: 77.6672vw; animation-duration: 12.0111s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#99ff99" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#99ff99" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#99ff99" stroke-width="2"></line>
+    </svg>
+  </div><div class="fish" style="top: 96.773vh; left: 47.596vw; animation-duration: 12.1053s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ffcc66" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ffcc66" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ffcc66" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 97.8607vh; left: 29.0501vw; animation-duration: 8.29141s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ff66cc" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ff66cc" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ff66cc" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 31.6897vh; left: 26.4506vw; animation-duration: 12.0781s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#66ccff" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#66ccff" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#66ccff" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 77.9756vh; left: 51.2762vw; animation-duration: 10.8774s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ff9999" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ff9999" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ff9999" stroke-width="2"></line>
+    </svg>
+  </div>
+  <div class="fish" style="top: 65.787vh; left: 4.1803vw; animation-duration: 12.4918s;">
+    <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 Q20,0 40,15 Q20,30 2,15 Z" stroke="#ccffcc" stroke-width="2" fill="none"></path>
+      <line x1="40" y1="15" x2="48" y2="10" stroke="#ccffcc" stroke-width="2"></line>
+      <line x1="40" y1="15" x2="48" y2="20" stroke="#ccffcc" stroke-width="2"></line>
+    </svg>
+  </div>
+</body></html>
